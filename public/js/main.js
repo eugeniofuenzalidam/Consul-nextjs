@@ -370,10 +370,166 @@ document.addEventListener('DOMContentLoaded', () => {
     loadServices();
 });
 
+// ========================================
+// CONTACT FORM WITH WEB3FORMS
+// ========================================
+
+// Contact Form Handler
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const submitButton = document.getElementById('submitButton');
+        const originalButtonText = submitButton.textContent;
+
+        // Disable button and show loading state
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Show success message
+                showFormMessage('success', '¡Mensaje enviado exitosamente! Te contactaremos pronto.');
+                contactForm.reset();
+
+                // Track conversion event (Google Analytics)
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'form_submission', {
+                        event_category: 'Contact',
+                        event_label: 'Contact Form'
+                    });
+                }
+            } else {
+                throw new Error(data.message || 'Error al enviar el formulario');
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showFormMessage('error', 'Hubo un error al enviar el mensaje. Por favor intenta de nuevo o contáctanos directamente.');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
+    });
+}
+
+function showFormMessage(type, message) {
+    // Remove any existing messages
+    const existingMessage = document.querySelector('.form-notification');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    // Create new message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `form-notification ${type}`;
+    messageDiv.innerHTML = `
+        <div class="notification-content">
+            ${type === 'success' ?
+                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' :
+                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+            }
+            <span>${message}</span>
+        </div>
+    `;
+
+    // Insert before form
+    const form = document.getElementById('contactForm');
+    form.parentElement.insertBefore(messageDiv, form);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        messageDiv.style.opacity = '0';
+        setTimeout(() => messageDiv.remove(), 300);
+    }, 5000);
+}
+
+// ========================================
+// BOOKING MODAL
+// ========================================
+
+function openBookingModal() {
+    const modal = document.getElementById('bookingModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Track event (Google Analytics)
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'booking_modal_open', {
+                event_category: 'Booking',
+                event_label: 'Open Booking Modal'
+            });
+        }
+    }
+}
+
+function closeBookingModal() {
+    const modal = document.getElementById('bookingModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('bookingModal');
+    if (e.target === modal) {
+        closeBookingModal();
+    }
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeBookingModal();
+    }
+});
+
+// Update hero buttons to use new functions
+document.addEventListener('DOMContentLoaded', function() {
+    // Update "Agendar Consultoría" buttons
+    const bookingButtons = document.querySelectorAll('.btn-primary');
+    bookingButtons.forEach(button => {
+        if (button.textContent.includes('Agendar')) {
+            button.onclick = function(e) {
+                e.preventDefault();
+                openBookingModal();
+            };
+        }
+    });
+
+    // Update "Contactar" buttons to scroll to contact section
+    const contactButtons = document.querySelectorAll('.btn');
+    contactButtons.forEach(button => {
+        if (button.textContent.includes('Contactar')) {
+            button.onclick = function(e) {
+                e.preventDefault();
+                const contactSection = document.getElementById('contacto');
+                if (contactSection) {
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+        }
+    });
+});
+
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         handleContactForm,
-        showContactModal
+        showContactModal,
+        openBookingModal,
+        closeBookingModal
     };
 }
