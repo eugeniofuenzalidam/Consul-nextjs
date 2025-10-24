@@ -1,11 +1,15 @@
 {
-  "buildCommand": "mkdir -p .vercel/output/static && cp -r public/* .vercel/output/static/",
-  "outputDirectory": ".vercel/output",
-  "framework": null,
+  "version": 2,
+  "builds": [
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/public/$1"
     }
   ]
 }
