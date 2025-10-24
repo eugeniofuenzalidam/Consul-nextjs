@@ -454,22 +454,52 @@ function showFormMessage(type, message) {
 }
 
 // ========================================
-// BOOKING MODAL
+// UNIFIED MODAL (CONTACT + BOOKING)
 // ========================================
 
-function openBookingModal() {
-    const modal = document.getElementById('bookingModal');
+function openUnifiedModal(tab = 'contact') {
+    const modal = document.getElementById('unifiedModal');
     if (modal) {
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        switchTab(tab);
 
         // Track event (Google Analytics)
         if (typeof gtag !== 'undefined') {
-            gtag('event', 'booking_modal_open', {
-                event_category: 'Booking',
-                event_label: 'Open Booking Modal'
+            gtag('event', 'modal_open', {
+                event_category: 'Engagement',
+                event_label: `Modal Opened - ${tab}`
             });
         }
+    }
+}
+
+function closeUnifiedModal() {
+    const modal = document.getElementById('unifiedModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function switchTab(tabName) {
+    // Remove active class from all tabs and contents
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    // Add active class to selected tab and content
+    const tabButton = document.querySelector(`.tab-button[onclick*="${tabName}"]`);
+    const tabContent = document.getElementById(tabName + 'Tab');
+
+    if (tabButton) tabButton.classList.add('active');
+    if (tabContent) tabContent.classList.add('active');
+
+    // Track tab switch
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'tab_switch', {
+            event_category: 'Engagement',
+            event_label: `Switched to ${tabName}`
+        });
     }
 }
 
@@ -484,26 +514,27 @@ function trackBookingClick() {
     console.log('📅 Usuario abriendo Google Calendar para agendar');
 }
 
+// Legacy function names for backward compatibility
+function openBookingModal() {
+    openUnifiedModal('booking');
+}
+
 function closeBookingModal() {
-    const modal = document.getElementById('bookingModal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+    closeUnifiedModal();
 }
 
 // Close modal when clicking outside
 document.addEventListener('click', function(e) {
-    const modal = document.getElementById('bookingModal');
+    const modal = document.getElementById('unifiedModal');
     if (e.target === modal) {
-        closeBookingModal();
+        closeUnifiedModal();
     }
 });
 
 // Close modal on escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeBookingModal();
+        closeUnifiedModal();
     }
 });
 
@@ -515,24 +546,67 @@ document.addEventListener('DOMContentLoaded', function() {
         if (button.textContent.includes('Agendar')) {
             button.onclick = function(e) {
                 e.preventDefault();
-                openBookingModal();
+                openUnifiedModal('booking');
             };
         }
     });
 
-    // Update "Contactar" buttons to scroll to contact section
+    // Update "Contactar" buttons to open modal
     const contactButtons = document.querySelectorAll('.btn');
     contactButtons.forEach(button => {
         if (button.textContent.includes('Contactar')) {
             button.onclick = function(e) {
                 e.preventDefault();
-                const contactSection = document.getElementById('contacto');
-                if (contactSection) {
-                    contactSection.scrollIntoView({ behavior: 'smooth' });
-                }
+                openUnifiedModal('contact');
             };
         }
     });
+
+    // Handle modal contact form submission
+    const modalForm = document.getElementById('contactFormModal');
+    if (modalForm) {
+        modalForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitButton = document.getElementById('submitButtonModal');
+            const originalButtonText = submitButton.textContent;
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('¡Mensaje enviado exitosamente! Te contactaremos pronto.');
+                    modalForm.reset();
+                    closeUnifiedModal();
+
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'form_submission', {
+                            event_category: 'Contact',
+                            event_label: 'Modal Contact Form'
+                        });
+                    }
+                } else {
+                    throw new Error(data.message || 'Error al enviar el formulario');
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                alert('Hubo un error al enviar el mensaje. Por favor intenta de nuevo.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
+        });
+    }
 });
 
 // Export functions for testing
