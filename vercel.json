@@ -1,5 +1,11 @@
 {
-  "buildCommand": "echo 'No build needed'",
-  "outputDirectory": "public",
-  "framework": null
+  "buildCommand": "mkdir -p .vercel/output/static && cp -r public/* .vercel/output/static/",
+  "outputDirectory": ".vercel/output",
+  "framework": null,
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
 }
