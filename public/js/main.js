@@ -473,6 +473,17 @@ function openBookingModal() {
     }
 }
 
+function trackBookingClick() {
+    // Track when user clicks to open Google Calendar
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'calendar_link_click', {
+            event_category: 'Booking',
+            event_label: 'Google Calendar Link Clicked'
+        });
+    }
+    console.log('📅 Usuario abriendo Google Calendar para agendar');
+}
+
 function closeBookingModal() {
     const modal = document.getElementById('bookingModal');
     if (modal) {

@@ -295,6 +295,36 @@
     border-radius: 8px;
 }
 
+.calendar-info {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 12px;
+    text-align: left;
+}
+
+.calendar-info h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #1e3a5f;
+}
+
+.calendar-info ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.calendar-info li {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.calendar-info strong {
+    color: #5B9AA9;
+    font-weight: 600;
+}
+
 /* Button disabled state */
 .btn:disabled {
     opacity: 0.6;
