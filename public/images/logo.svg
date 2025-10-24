@@ -1,4 +1,7 @@
-<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <text x="60" y="320" font-family="Georgia, 'Times New Roman', serif" font-size="180" font-weight="400" fill="#1e3a5f" letter-spacing="-2">Fuenzalida</text>
-  <text x="60" y="460" font-family="Georgia, 'Times New Roman', serif" font-size="140" font-weight="400" fill="#1e3a5f" letter-spacing="-1">Consulting</text>
+<svg width="960" height="360" viewBox="0 0 960 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fuenzalida con textLength para forzar el ancho -->
+  <text x="60" y="160" font-family="Georgia, 'Times New Roman', serif" font-size="150" font-weight="400" fill="#1e3a5f" textLength="840" lengthAdjust="spacing">Fuenzalida</text>
+
+  <!-- Consulting con el mismo textLength para que tenga el mismo ancho -->
+  <text x="60" y="290" font-family="Georgia, 'Times New Roman', serif" font-size="150" font-weight="400" fill="#1e3a5f" textLength="840" lengthAdjust="spacing">Consulting</text>
 </svg>
